@@ -1,0 +1,3 @@
+# Shell scripts must stay LF-only so shebangs work on Linux/macOS when
+# checked out on Windows. Git's autocrlf would otherwise silently break them.
+*.sh text eol=lf

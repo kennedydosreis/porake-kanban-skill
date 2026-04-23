@@ -1,17 +1,19 @@
-#!/bin/bash
-# List all tags used in kanban cards with counts
+#!/usr/bin/env bash
+# List all tags used in kanban cards with counts.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/card_utils.sh"
 
 KANBAN_DIR="${1:-.}"
 
 echo "=== Tag Usage ==="
 echo
 
-grep "^tags:" "$KANBAN_DIR"/*.md 2>/dev/null | \
-    sed 's/.*tags: //' | \
-    tr -d '[]' | \
-    tr ',' '\n' | \
-    sed 's/^ *//' | \
-    sort | \
-    uniq -c | \
-    sort -rn | \
-    awk '{printf "%3d  %s\n", $1, $2}'
+for f in "$KANBAN_DIR"/*.md; do
+    [ -f "$f" ] || continue
+    tags=$(field "$f" tags)
+    [ -n "$tags" ] || continue
+    list_values "$tags"
+done | sort | uniq -c | sort -rn | awk '{printf "%3d  %s\n", $1, $2}'

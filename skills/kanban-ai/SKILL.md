@@ -115,3 +115,107 @@ bash <SCRIPTS_DIR>/list_all_cards.sh kanban/
 Output: All cards in pipe-delimited format (id|status|blocked_by|title), sorted by ID. Useful for parsing, debugging dependencies, or exporting board state.
 
 **Note:** `<SCRIPTS_DIR>` refers to the `scripts/` directory next to this SKILL.md file. All scripts take the kanban directory as the first argument. If omitted, they default to the current directory.
+
+## Automation & Workflow
+
+### Card Templates
+
+Create cards from predefined templates. Available types: `feature`, `bug`, `spike`, `chore`. Each template includes the appropriate structure (Job Story for features, Steps to Reproduce for bugs, Time Box for spikes, etc.). The script auto-assigns the next ID.
+
+```bash
+bash <SCRIPTS_DIR>/create_from_template.sh kanban/ feature "Add OAuth support" "@claude" "2026-03-15"
+bash <SCRIPTS_DIR>/create_from_template.sh kanban/ bug "Login form crashes on empty email"
+bash <SCRIPTS_DIR>/create_from_template.sh kanban/ spike "Evaluate WebSocket vs SSE"
+bash <SCRIPTS_DIR>/create_from_template.sh kanban/ chore "Update dependencies"
+```
+
+Templates are in `<SCRIPTS_DIR>/templates/`. Placeholders (`__TITLE__`, `__ID__`, etc.) are filled automatically. The created file still needs its body sections completed.
+
+### Validated Transitions
+
+Move cards between statuses with automatic rule enforcement. The script checks blocked_by dependencies, optional WIP limits, and appends a narrative entry on every transition.
+
+```bash
+bash <SCRIPTS_DIR>/transition.sh kanban/ 3 doing
+bash <SCRIPTS_DIR>/transition.sh kanban/ 3 doing --wip-limit 3
+bash <SCRIPTS_DIR>/transition.sh kanban/ 5 done
+```
+
+Rules enforced:
+- Cards cannot move to `doing` if any `blocked_by` card is not `done`.
+- If `--wip-limit N` is set, rejects the transition when `doing` already has N cards.
+- A narrative line is auto-appended on every status change.
+
+Prefer `transition.sh` over manual `sed` edits when moving cards. It ensures consistency.
+
+### Auto-Archive
+
+Move completed cards to `kanban/archived/` based on age. Useful for keeping the board clean.
+
+```bash
+bash <SCRIPTS_DIR>/auto_archive.sh kanban/ --days 7
+bash <SCRIPTS_DIR>/auto_archive.sh kanban/ --days 3 --dry-run
+```
+
+Default threshold is 3 days. Use `--dry-run` to preview which cards would be archived.
+
+### Daily Standup
+
+Generate a standup summary: what's in progress, what's blocked, what was recently done, and what's next.
+
+```bash
+bash <SCRIPTS_DIR>/standup.sh kanban/
+bash <SCRIPTS_DIR>/standup.sh kanban/ --days 2
+```
+
+The "Up Next" section ranks `todo` cards by priority (High first) and blocked status (unblocked first), showing the top 5 candidates.
+
+### Board Report
+
+Generate a metrics report: card distribution with visual bars, priority breakdown, overdue cards, aging cards (in `doing` > 7 days), throughput (last 7/30 days), and dependency chains.
+
+```bash
+bash <SCRIPTS_DIR>/report.sh kanban/
+```
+
+### Board Validation
+
+Check board health for common problems: duplicate IDs, orphan dependency references, missing required fields, invalid statuses, and missing Narrative sections.
+
+```bash
+bash <SCRIPTS_DIR>/validate_board.sh kanban/
+```
+
+Returns exit code 0 if clean, or the number of errors found. Run this after bulk edits or imports.
+
+## Multi-Agent Repository Analysis
+
+For analyzing large repositories where a single context window is not enough, this skill bundles a separate workflow that breaks an architectural review into specialist-assigned kanban cards. The workflow lives in the `analysis/` directory next to this SKILL.md.
+
+Use when the user asks to:
+- analyze, review, or audit a repository's architecture
+- identify risks, technical debt, or improvement opportunities across a whole codebase
+- produce an action plan from a code review
+
+Do NOT use this workflow for small single-file questions — it is intentionally heavyweight.
+
+### How it works
+
+The `analysis/analyze.sh` orchestrator runs four phases: profile the repo, decompose analysis into scoped cards, execute one specialist per card in a fresh subprocess, then synthesize a consolidated action board. Each specialist reads only the files its card scopes — context never bleeds between cards. Findings are written to each card's `## Narrative` section with `file:line` citations. The final output is an executive summary (`ARCHITECTURE-REVIEW.md`) plus a new kanban board of action cards ready for implementation.
+
+```bash
+bash <SCRIPTS_DIR>/../analysis/analyze.sh /path/to/target/repo
+```
+
+For full usage, customization (adding specialists, changing decomposition rules), and the design rationale, read `analysis/ANALYSIS.md` — it is the authoritative reference for this workflow.
+
+### When working inside an analysis run
+
+If invoked as a specialist on an analysis card (tag `analysis`, with a `specialist` and `scope` field):
+- Read only files within the card's declared `scope`.
+- Cite `file:line` on every finding. No citation means do not write the finding.
+- Tag findings as `OBSERVATION`, `RISK`, or `RECOMMENDATION`.
+- Use `transition.sh` to move the card to `done` when finished.
+- Do not create new cards or modify other cards.
+
+Full specialist rules are in `analysis/prompts/specialist.md`.

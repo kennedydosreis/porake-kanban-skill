@@ -1,10 +1,10 @@
 {
-  "name": "kanban",
+  "name": "porake-kanban-skill",
   "description": "Markdown-based Kanban board managed by Claude Code. Cards live as .md files — no database, no server.",
   "version": "1.0.0",
   "author": {
-    "name": "Matt Joyce"
+    "name": "Kennedy Reis"
   },
-  "repository": "https://github.com/mattjoyce/kanban-skill",
+  "repository": "https://github.com/kennedydosreis/porake-kanban-skill",
   "license": "Apache-2.0"
 }

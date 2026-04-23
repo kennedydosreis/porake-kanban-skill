@@ -1,5 +1,10 @@
-#!/bin/bash
-# Show cards that are blocked and what's blocking them
+#!/usr/bin/env bash
+# Show cards that are currently blocked and their unresolved blockers.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/card_utils.sh"
 
 KANBAN_DIR="${1:-.}"
 
@@ -9,16 +14,20 @@ echo
 for file in "$KANBAN_DIR"/*.md; do
     [ -f "$file" ] || continue
 
-    blocked_by=$(grep "^blocked_by:" "$file" | sed 's/blocked_by: *//' | tr -d '[]')
+    status=$(field "$file" status)
+    case "$status" in
+        done|archive)
+            continue
+            ;;
+    esac
 
-    # Skip if not blocked (empty or just whitespace)
-    [ -z "$(echo "$blocked_by" | tr -d ' ,')" ] && continue
+    blockers=$(unresolved_blockers "$KANBAN_DIR" "$file" | xargs)
+    [ -n "$blockers" ] || continue
 
-    id=$(grep "^id:" "$file" | sed 's/id: *//')
-    status=$(grep "^status:" "$file" | sed 's/status: *//')
-    title=$(grep "^# " "$file" | head -1 | sed 's/^# //')
+    id=$(field "$file" id)
+    title_text=$(title "$file")
 
-    printf "#%-3s %-12s %s\n" "${id:-?}" "[$status]" "$title"
-    echo "  Blocked by: $blocked_by"
+    printf "#%-3s %-12s %s\n" "${id:-?}" "[$status]" "$title_text"
+    echo "  Blocked by: $blockers"
     echo
 done

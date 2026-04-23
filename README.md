@@ -1,4 +1,4 @@
-# kanban-ai
+# porake-kanban-skill
 
 A Markdown-based Kanban board plugin for [Claude Code](https://claude.com/claude-code).
 
@@ -21,19 +21,39 @@ If this plugin is available in a marketplace you've added:
 Clone the repo and load it directly during development or personal use:
 
 ```bash
-git clone https://github.com/mattjoyce/kanban-skill.git
-claude --plugin-dir ./kanban-skill
+git clone https://github.com/kennedydosreis/porake-kanban-skill.git
+claude --plugin-dir ./porake-kanban-skill
 ```
 
 You can also load multiple plugins at once:
 
 ```bash
-claude --plugin-dir ./kanban-skill --plugin-dir ./other-plugin
+claude --plugin-dir ./porake-kanban-skill --plugin-dir ./other-plugin
 ```
 
 ### Verify installation
 
-Once loaded, run `/help` inside Claude Code. You should see `kanban:kanban-ai` listed. The skill is model-invoked, so Claude will use it automatically when you discuss tasks or kanban boards.
+First, validate the plugin manifest:
+
+```bash
+claude plugins validate .
+```
+
+Then start Claude Code with the plugin loaded:
+
+```bash
+claude --plugin-dir .
+```
+
+The most reliable check is a functional one. Inside Claude Code, try:
+
+```text
+> show me the kanban board
+> create a new kanban card for smoke testing
+> what cards are blocked?
+```
+
+If those prompts cause Claude Code to load the `porake-kanban-skill:kanban-ai` skill and operate on the `kanban/` directory, the plugin is working correctly. Depending on Claude Code version, `/help` may not list the skill explicitly even when the plugin is loaded.
 
 ## Usage
 
@@ -87,7 +107,7 @@ Configure GitHub Actions for automated testing.
 ## Plugin Structure
 
 ```
-kanban-skill/
+porake-kanban-skill/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin manifest
 ├── skills/
@@ -112,6 +132,20 @@ The plugin includes helper scripts for board operations. Claude uses these autom
 | `list_tags.sh`      | Show tag usage with counts            |
 
 Scripts are located at `skills/kanban-ai/scripts/` within the plugin directory.
+
+## Local Testing
+
+Quick smoke test:
+
+```bash
+bash ./smoke_test_quick.sh
+```
+
+Full local smoke test:
+
+```bash
+bash ./smoke_test.sh
+```
 
 ## License
 

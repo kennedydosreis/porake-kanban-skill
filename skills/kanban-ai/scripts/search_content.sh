@@ -1,9 +1,21 @@
-#!/bin/bash
-# Search kanban card content (case-insensitive grep)
+#!/usr/bin/env bash
+# Search kanban card content (case-insensitive, literal match).
 
-KANBAN_DIR="${1:-.}"
-shift
-SEARCH_TERM="$*"
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/card_utils.sh"
+
+if [ $# -eq 1 ]; then
+    KANBAN_DIR="."
+    SEARCH_TERM="$1"
+elif [ $# -ge 2 ]; then
+    KANBAN_DIR="$1"
+    shift
+    SEARCH_TERM="$*"
+else
+    SEARCH_TERM=""
+fi
 
 if [ -z "$SEARCH_TERM" ]; then
     echo "Usage: $0 [kanban_dir] <search_term>"
@@ -14,15 +26,17 @@ fi
 echo "=== Cards matching: $SEARCH_TERM ==="
 echo
 
-grep -il "$SEARCH_TERM" "$KANBAN_DIR"/*.md 2>/dev/null | while read -r file; do
-    id=$(grep "^id:" "$file" | sed 's/id: *//')
-    status=$(grep "^status:" "$file" | sed 's/status: *//')
-    title=$(grep "^# " "$file" | head -1 | sed 's/^# //')
+for file in "$KANBAN_DIR"/*.md; do
+    [ -f "$file" ] || continue
+    grep -F -i -q "$SEARCH_TERM" "$file" || continue
 
-    printf "#%-3s %-12s %s\n" "${id:-?}" "[$status]" "$title"
+    id=$(field "$file" id)
+    status=$(field "$file" status)
+    title_text=$(title "$file")
 
-    # Show matching lines with context
+    printf "#%-3s %-12s %s\n" "${id:-?}" "[$status]" "$title_text"
+
     echo "  Matches:"
-    grep -i -n -C1 "$SEARCH_TERM" "$file" | head -10 | sed 's/^/    /'
+    grep -F -i -n -C1 "$SEARCH_TERM" "$file" | head -10 | sed 's/^/    /'
     echo
 done
