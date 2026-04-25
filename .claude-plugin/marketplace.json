@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "porake-kanban-skill",
-      "source": "./",
+      "source": "./plugins/porake-kanban-skill",
       "description": "Markdown-based Kanban board managed by Claude Code. Cards live as .md files — no database, no server."
     }
   ]

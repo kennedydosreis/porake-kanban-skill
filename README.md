@@ -107,14 +107,18 @@ Configure GitHub Actions for automated testing.
 ## Plugin Structure
 
 ```
-porake-kanban-skill/
+porake-kanban-skill/                 # Marketplace repo
 ├── .claude-plugin/
-│   └── plugin.json          # Plugin manifest
-├── skills/
-│   └── kanban-ai/
-│       ├── SKILL.md          # Skill definition and instructions
-│       └── scripts/          # Board view and search utilities
-├── kanban/                   # Example card storage (per-project)
+│   └── marketplace.json             # Marketplace manifest
+├── plugins/
+│   └── porake-kanban-skill/         # The plugin itself
+│       ├── .claude-plugin/
+│       │   └── plugin.json          # Plugin manifest
+│       └── skills/
+│           └── kanban-ai/
+│               ├── SKILL.md         # Skill definition and instructions
+│               └── scripts/         # Board view and search utilities
+├── kanban/                          # Example card storage (per-project)
 ├── README.md
 └── LICENSE
 ```
@@ -131,7 +135,7 @@ The plugin includes helper scripts for board operations. Claude uses these autom
 | `show_blocked.sh`   | List blocked cards and their blockers |
 | `list_tags.sh`      | Show tag usage with counts            |
 
-Scripts are located at `skills/kanban-ai/scripts/` within the plugin directory.
+Scripts are located at `plugins/porake-kanban-skill/skills/kanban-ai/scripts/` within the plugin directory.
 
 ## Local Testing
 

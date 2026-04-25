@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SCRIPTS_DIR="$ROOT_DIR/skills/kanban-ai/scripts"
+SCRIPTS_DIR="$ROOT_DIR/plugins/porake-kanban-skill/skills/kanban-ai/scripts"
 TEMP_BASE="${TMPDIR:-/tmp}"
 WORK_DIR=""
 BOARD_DIR=""
