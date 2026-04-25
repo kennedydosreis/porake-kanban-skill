@@ -1,0 +1,14 @@
+{
+  "name": "porake-kanban",
+  "owner": {
+    "name": "Kennedy Reis",
+    "url": "https://github.com/kennedydosreis"
+  },
+  "plugins": [
+    {
+      "name": "porake-kanban-skill",
+      "source": "./",
+      "description": "Markdown-based Kanban board managed by Claude Code. Cards live as .md files — no database, no server."
+    }
+  ]
+}
