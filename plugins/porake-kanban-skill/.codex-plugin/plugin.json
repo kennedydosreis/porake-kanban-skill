@@ -1,0 +1,38 @@
+{
+  "name": "porake-kanban-skill",
+  "version": "1.0.0",
+  "description": "Markdown-based Kanban board managed by Codex. Cards live as .md files - no database, no server.",
+  "author": {
+    "name": "Kennedy Reis",
+    "url": "https://github.com/kennedydosreis"
+  },
+  "homepage": "https://github.com/kennedydosreis/porake-kanban-skill",
+  "repository": "https://github.com/kennedydosreis/porake-kanban-skill",
+  "license": "Apache-2.0",
+  "keywords": [
+    "kanban",
+    "markdown",
+    "tasks",
+    "project-management",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Porake Kanban",
+    "shortDescription": "Manage a Markdown Kanban board from project files.",
+    "longDescription": "Create, view, move, validate, and report on Kanban cards stored as Markdown files in a project's kanban/ directory.",
+    "developerName": "Kennedy Reis",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/kennedydosreis/porake-kanban-skill",
+    "defaultPrompt": [
+      "Show me the kanban board.",
+      "Create a kanban card for this task.",
+      "What cards are blocked?"
+    ],
+    "brandColor": "#0F766E"
+  }
+}

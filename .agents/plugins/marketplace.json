@@ -1,0 +1,20 @@
+{
+  "name": "porake-kanban",
+  "interface": {
+    "displayName": "Porake Kanban"
+  },
+  "plugins": [
+    {
+      "name": "porake-kanban-skill",
+      "source": {
+        "source": "local",
+        "path": "./plugins/porake-kanban-skill"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
