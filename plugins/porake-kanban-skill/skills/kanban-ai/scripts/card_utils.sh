@@ -34,6 +34,38 @@ trim_quotes() {
     printf '%s\n' "$value"
 }
 
+trim_value() {
+    printf '%s\n' "${1-}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'
+}
+
+normalize_field_value() {
+    trim_value "$(trim_quotes "${1-}")"
+}
+
+yaml_quote() {
+    local value="${1-}"
+    value=${value//\\/\\\\}
+    value=${value//\"/\\\"}
+    printf '"%s"\n' "$value"
+}
+
+append_narrative() {
+    local file="$1"
+    local line="$2"
+    local tmp
+
+    if grep -q "^## Narrative" "$file"; then
+        tmp=$(mktemp)
+        awk -v line="$line" '
+            { sub(/\r$/, "") }
+            !added && /^## Narrative/ { print; print line; added=1; next }
+            { print }
+        ' "$file" > "$tmp" && mv "$tmp" "$file"
+    else
+        printf "\n## Narrative\n%s\n" "$line" >> "$file"
+    fi
+}
+
 list_values() {
     local raw="${1-}"
     printf '%s\n' "$raw" \

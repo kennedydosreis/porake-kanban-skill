@@ -1,6 +1,6 @@
 {
   "name": "porake-kanban-skill",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Markdown-based Kanban board managed by Codex. Cards live as .md files - no database, no server.",
   "author": {
     "name": "Kennedy Reis",
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Porake Kanban",
     "shortDescription": "Manage a Markdown Kanban board from project files.",
-    "longDescription": "Create, view, move, validate, and report on Kanban cards stored as Markdown files in a project's kanban/ directory.",
+    "longDescription": "Create, claim, review, view, move, validate, and report on Kanban cards stored as Markdown files in a project's kanban/ directory.",
     "developerName": "Kennedy Reis",
     "category": "Productivity",
     "capabilities": [

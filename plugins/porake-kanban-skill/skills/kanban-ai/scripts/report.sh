@@ -19,7 +19,7 @@ echo
 # --- Distribution ---
 echo "CARD DISTRIBUTION:"
 total=0
-for col in backlog todo doing done; do
+for col in backlog todo doing review done; do
     count=0
     for f in "$KANBAN_DIR"/*.md; do
         [ -f "$f" ] || continue

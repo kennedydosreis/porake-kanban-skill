@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-04-25
+
+### Added
+- Codex plugin manifest and repo-local marketplace metadata.
+- Parallel agent claiming workflow with `claim_next.sh` for unassigned, unblocked cards.
+- Cross-provider review workflow with `submit_for_review.sh` and `review_card.sh`.
+- `review` status for cards waiting on another provider before finalization.
+
+### Changed
+- Updated board views, reports, standups, validation, and transitions to understand `review`.
+- Documented shared Codex/Claude board ownership using `assignee`.
+- Bumped Claude and Codex plugin manifests to `1.1.0`.
+
 ## [1.0.0] - 2026-04-25
 
 ### Added

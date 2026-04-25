@@ -12,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 KANBAN_DIR="${1:?Usage: $0 <kanban_dir> <card_id> <new_status> [--wip-limit N]}"
 CARD_ID="${2:?Specify card ID}"
-NEW_STATUS="${3:?Specify new status: backlog, todo, doing, done, archive}"
+NEW_STATUS="${3:?Specify new status: backlog, todo, doing, review, done, archive}"
 WIP_LIMIT=0
 
 shift 3
@@ -23,7 +23,7 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-VALID_STATUSES="backlog todo doing done archive"
+VALID_STATUSES="backlog todo doing review done archive"
 if ! echo "$VALID_STATUSES" | grep -qw "$NEW_STATUS"; then
     echo "Error: Invalid status '$NEW_STATUS'. Must be one of: $VALID_STATUSES" >&2
     exit 1
@@ -84,15 +84,6 @@ awk -v s="$NEW_STATUS" '
 TODAY=$(date +%Y-%m-%d)
 NARRATIVE_LINE="- $TODAY: Status changed from '$CURRENT_STATUS' to '$NEW_STATUS'. (by @assistant)"
 
-if grep -q "^## Narrative" "$CARD_FILE"; then
-    TMP=$(mktemp)
-    awk -v line="$NARRATIVE_LINE" '
-        { sub(/\r$/, "") }
-        !added && /^## Narrative/ { print; print line; added=1; next }
-        { print }
-    ' "$CARD_FILE" > "$TMP" && mv "$TMP" "$CARD_FILE"
-else
-    printf "\n## Narrative\n%s\n" "$NARRATIVE_LINE" >> "$CARD_FILE"
-fi
+append_narrative "$CARD_FILE" "$NARRATIVE_LINE"
 
 echo "OK: Card #$CARD_ID '$CARD_TITLE' moved from '$CURRENT_STATUS' -> '$NEW_STATUS'"

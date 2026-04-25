@@ -1,6 +1,6 @@
 ---
 name: kanban-ai
-description: Manage a Markdown-based Kanban board using card files in a kanban/ directory (including kanban/archived/ for completed cards). Use when the user asks to create, move, view, list, or manage tasks or cards on a kanban board, or when tracking work items across statuses like backlog, todo, doing, done, or archive.
+description: Manage a Markdown-based Kanban board using card files in a kanban/ directory (including kanban/archived/ for completed cards). Use when the user asks to create, claim, review, move, view, list, or manage tasks or cards on a kanban board, or when tracking work items across statuses like backlog, todo, doing, review, done, or archive.
 ---
 
 # Kanban AI Skill
@@ -27,7 +27,7 @@ When a card is moved to `done`, add enough narrative detail that a future reader
 Each card's frontmatter supports the following fields:
 
 - `id` — Unique numeric identifier. Scan existing cards in `kanban/` (including `kanban/archived/`), take max + 1. Start at `1` if empty. Reference cards by this number.
-- `status` — Column: `backlog`, `todo`, `doing`, `done`, or `archive`.
+- `status` — Column: `backlog`, `todo`, `doing`, `review`, `done`, or `archive`.
 - `priority` — `High` or `Normal`. Defaults to `Normal` if omitted.
 - `blocked_by` — List of card IDs that must be `done` before this card moves to `doing`. Example: `[3, 7]`. Omit or set to `[]` if unblocked.
 - `assignee` — (optional) Owner of the card.
@@ -67,8 +67,65 @@ Update the `status` field in frontmatter.
 
 Before moving to `doing`, verify all IDs in `blocked_by` have status `done`. If any are not `done`, the card stays put.
 
+Use `review` when implementation is complete but must be checked by the other provider before finalizing. Do not move a card directly from `doing` to `done` when another agent/provider is available to review it.
+
 Cards with `status: done` may be moved into `kanban/archived/` to keep the main board tidy. This is a file-location move only; the card should remain a normal card with `status: done` unless explicitly changed.
 If `kanban/archived/` does not exist, create it under the active cards folder (`kanban/`) before moving the card.
+
+## Claiming Work for Parallel Agents
+
+When multiple agents may work in parallel, claim a card before implementing it. A claim means:
+- `status` is changed to `doing`
+- `assignee` is set to the claiming agent, for example `codex` or `claude`
+- a narrative entry is appended
+
+Use `claim_next.sh` to pick the next unassigned, unblocked card. By default, it checks `todo` first, then `backlog`, prioritizes `High` cards, and uses the lowest card ID as the tie-breaker.
+
+```bash
+bash <SCRIPTS_DIR>/claim_next.sh kanban/ codex
+bash <SCRIPTS_DIR>/claim_next.sh kanban/ claude
+bash <SCRIPTS_DIR>/claim_next.sh kanban/ codex --from todo --wip-limit 3
+bash <SCRIPTS_DIR>/claim_next.sh kanban/ codex --dry-run
+```
+
+Parallel-work rules:
+- Before choosing work, reread the board or run `claim_next.sh --dry-run`.
+- Never work on a card assigned to another agent.
+- Prefer `claim_next.sh` over manually editing `status` and `assignee`.
+- If agents are in separate clones, commit and push the claim before implementation; if push fails, pull and choose another card.
+- If a card already has `assignee: codex` or `assignee: claude`, only that agent should continue it unless the user explicitly reassigns it.
+
+## Cross-Provider Review
+
+When one provider finishes implementation, send the card to the other provider for review instead of marking it `done` directly.
+
+```bash
+bash <SCRIPTS_DIR>/submit_for_review.sh kanban/ 3 claude
+bash <SCRIPTS_DIR>/submit_for_review.sh kanban/ 3 codex
+```
+
+The card moves to `review` and `assignee` becomes the reviewer.
+
+If the review is OK, finalize the card:
+
+```bash
+bash <SCRIPTS_DIR>/review_card.sh kanban/ 3 approve claude
+```
+
+If the review finds issues, the reviewer pulls it back into development:
+
+```bash
+bash <SCRIPTS_DIR>/review_card.sh kanban/ 3 changes claude
+bash <SCRIPTS_DIR>/review_card.sh kanban/ 3 changes claude codex
+```
+
+Changes requested move the card back to `doing`, set `priority: High`, and assign it to the reviewer by default. Pass a fifth argument to assign the fix to a different provider.
+
+Review rules:
+- A provider should not review its own assigned card.
+- `done` means implementation and review are complete.
+- If review is rejected, treat the card as urgent until the requested changes are resolved.
+- In separate clones, commit and push the review result before starting another card.
 
 ## Viewing the Board
 
@@ -138,13 +195,14 @@ Move cards between statuses with automatic rule enforcement. The script checks b
 ```bash
 bash <SCRIPTS_DIR>/transition.sh kanban/ 3 doing
 bash <SCRIPTS_DIR>/transition.sh kanban/ 3 doing --wip-limit 3
-bash <SCRIPTS_DIR>/transition.sh kanban/ 5 done
+bash <SCRIPTS_DIR>/transition.sh kanban/ 5 review
 ```
 
 Rules enforced:
 - Cards cannot move to `doing` if any `blocked_by` card is not `done`.
 - If `--wip-limit N` is set, rejects the transition when `doing` already has N cards.
 - A narrative line is auto-appended on every status change.
+- Prefer `submit_for_review.sh` and `review_card.sh` over direct `done` transitions when another provider is available.
 
 Prefer `transition.sh` over manual `sed` edits when moving cards. It ensures consistency.
 

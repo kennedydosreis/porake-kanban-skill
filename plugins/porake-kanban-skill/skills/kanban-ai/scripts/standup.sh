@@ -44,6 +44,23 @@ done
 $found || echo "  (nothing in progress)"
 echo
 
+# In Review
+echo "IN REVIEW:"
+found=false
+for f in "$KANBAN_DIR"/*.md; do
+    [ -f "$f" ] || continue
+    s=$(field "$f" status)
+    [ "$s" = "review" ] || continue
+    id=$(field "$f" id); t=$(title "$f"); a=$(trim_quotes "$(field "$f" assignee)"); p=$(field "$f" priority)
+    line="  #$id $t"
+    [ -n "$a" ] && line="$line (review: $a)"
+    [ "$p" = "High" ] && line="$line [HIGH]"
+    echo "$line"
+    found=true
+done
+$found || echo "  (nothing in review)"
+echo
+
 # Blocked
 echo "BLOCKED:"
 found=false
@@ -119,7 +136,7 @@ echo
 
 # Summary counts
 echo "--- BOARD SUMMARY ---"
-for col in backlog todo doing done; do
+for col in backlog todo doing review done; do
     count=0
     for f in "$KANBAN_DIR"/*.md; do
         [ -f "$f" ] || continue

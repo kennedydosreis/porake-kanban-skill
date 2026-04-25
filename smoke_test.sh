@@ -87,6 +87,32 @@ assert_contains "$cards_output" "1|backlog||Smoke Test Chore" "template chore ca
 assert_contains "$cards_output" "2|backlog||Smoke Test Feature" "template feature card should exist"
 assert_contains "$cards_output" "3|todo|2|Blocked Follow Up" "manual dependent card should exist"
 
+step "Claim Next Card"
+claim_preview="$(bash "$SCRIPTS_DIR/claim_next.sh" "$BOARD_DIR" codex --dry-run)"
+printf '%s\n' "$claim_preview"
+assert_contains "$claim_preview" "NEXT: #1 Smoke Test Chore [backlog] -> codex" "claim preview should pick the first unassigned, unblocked card"
+
+run bash "$SCRIPTS_DIR/claim_next.sh" "$BOARD_DIR" codex
+
+claimed_cards="$(bash "$SCRIPTS_DIR/list_all_cards.sh" "$BOARD_DIR")"
+printf '%s\n' "$claimed_cards"
+assert_contains "$claimed_cards" "1|doing||Smoke Test Chore" "claimed card should move to doing"
+
+run bash "$SCRIPTS_DIR/submit_for_review.sh" "$BOARD_DIR" 1 claude
+
+review_cards="$(bash "$SCRIPTS_DIR/list_all_cards.sh" "$BOARD_DIR")"
+printf '%s\n' "$review_cards"
+assert_contains "$review_cards" "1|review||Smoke Test Chore" "submitted card should move to review"
+
+run bash "$SCRIPTS_DIR/review_card.sh" "$BOARD_DIR" 1 changes claude
+
+changes_board="$(bash "$SCRIPTS_DIR/view_board.sh" "$BOARD_DIR")"
+printf '%s\n' "$changes_board"
+assert_contains "$changes_board" "#1 Smoke Test Chore [HIGH]" "changes request should pull card back with High priority"
+
+run bash "$SCRIPTS_DIR/submit_for_review.sh" "$BOARD_DIR" 1 codex
+run bash "$SCRIPTS_DIR/review_card.sh" "$BOARD_DIR" 1 approve codex
+
 step "Blocked Card Detection"
 blocked_output="$(bash "$SCRIPTS_DIR/show_blocked.sh" "$BOARD_DIR")"
 printf '%s\n' "$blocked_output"
@@ -94,9 +120,6 @@ assert_contains "$blocked_output" "#3" "dependent card should be listed as block
 assert_contains "$blocked_output" "#2(backlog)" "blocked output should show unresolved blocker status"
 
 step "Transitions"
-run bash "$SCRIPTS_DIR/transition.sh" "$BOARD_DIR" 1 todo
-run bash "$SCRIPTS_DIR/transition.sh" "$BOARD_DIR" 1 doing
-run bash "$SCRIPTS_DIR/transition.sh" "$BOARD_DIR" 1 done
 run bash "$SCRIPTS_DIR/transition.sh" "$BOARD_DIR" 2 todo
 run bash "$SCRIPTS_DIR/transition.sh" "$BOARD_DIR" 2 doing
 run bash "$SCRIPTS_DIR/transition.sh" "$BOARD_DIR" 2 done

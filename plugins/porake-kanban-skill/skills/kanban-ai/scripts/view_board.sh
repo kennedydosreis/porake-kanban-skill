@@ -17,6 +17,7 @@ fi
 backlog_col=""
 todo_col=""
 doing_col=""
+review_col=""
 done_col=""
 archive_col=""
 
@@ -38,17 +39,19 @@ for f in "$KANBAN_DIR"/*.md; do
         backlog) backlog_col+="$line"$'\n' ;;
         todo) todo_col+="$line"$'\n' ;;
         doing) doing_col+="$line"$'\n' ;;
+        review) review_col+="$line"$'\n' ;;
         done) done_col+="$line"$'\n' ;;
         archive) archive_col+="$line"$'\n' ;;
     esac
 done
 
-for status in backlog todo doing done archive; do
+for status in backlog todo doing review done archive; do
     printf "=== %-8s ===\n" "$(echo "$status" | tr '[:lower:]' '[:upper:]')"
     case "$status" in
         backlog) output="$backlog_col" ;;
         todo) output="$todo_col" ;;
         doing) output="$doing_col" ;;
+        review) output="$review_col" ;;
         done) output="$done_col" ;;
         archive) output="$archive_col" ;;
     esac

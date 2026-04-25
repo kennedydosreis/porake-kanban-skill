@@ -54,7 +54,7 @@ for dir in "$KANBAN_DIR" "$KANBAN_DIR/archived"; do
         if [ -z "$status" ]; then
             echo "ERROR: $fname (#$id) has no 'status' field"
             ERRORS=$((ERRORS + 1))
-        elif ! echo "backlog todo doing done archive" | grep -qw "$status"; then
+        elif ! echo "backlog todo doing review done archive" | grep -qw "$status"; then
             echo "ERROR: $fname (#$id) has invalid status '$status'"
             ERRORS=$((ERRORS + 1))
         fi

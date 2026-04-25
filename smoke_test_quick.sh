@@ -41,7 +41,10 @@ trap cleanup EXIT
 step "Syntax Checks"
 run bash -n "$ROOT_DIR/smoke_test_quick.sh"
 run bash -n "$SCRIPTS_DIR/card_utils.sh"
+run bash -n "$SCRIPTS_DIR/claim_next.sh"
 run bash -n "$SCRIPTS_DIR/create_from_template.sh"
+run bash -n "$SCRIPTS_DIR/review_card.sh"
+run bash -n "$SCRIPTS_DIR/submit_for_review.sh"
 run bash -n "$SCRIPTS_DIR/transition.sh"
 run bash -n "$SCRIPTS_DIR/view_board.sh"
 run bash -n "$SCRIPTS_DIR/validate_board.sh"
@@ -57,9 +60,23 @@ cards_output="$(bash "$SCRIPTS_DIR/list_all_cards.sh" "$BOARD_DIR")"
 printf '%s\n' "$cards_output"
 assert_contains "$cards_output" "1|backlog||Quick Smoke Card" "new card should be listed in backlog"
 
-run bash "$SCRIPTS_DIR/transition.sh" "$BOARD_DIR" 1 todo
-run bash "$SCRIPTS_DIR/transition.sh" "$BOARD_DIR" 1 doing
-run bash "$SCRIPTS_DIR/transition.sh" "$BOARD_DIR" 1 done
+claim_preview="$(bash "$SCRIPTS_DIR/claim_next.sh" "$BOARD_DIR" codex --dry-run)"
+printf '%s\n' "$claim_preview"
+assert_contains "$claim_preview" "NEXT: #1 Quick Smoke Card [backlog] -> codex" "claim preview should pick the first available card"
+
+run bash "$SCRIPTS_DIR/claim_next.sh" "$BOARD_DIR" codex
+
+claimed_cards="$(bash "$SCRIPTS_DIR/list_all_cards.sh" "$BOARD_DIR")"
+printf '%s\n' "$claimed_cards"
+assert_contains "$claimed_cards" "1|doing||Quick Smoke Card" "claimed card should move to doing"
+
+run bash "$SCRIPTS_DIR/submit_for_review.sh" "$BOARD_DIR" 1 claude
+
+review_cards="$(bash "$SCRIPTS_DIR/list_all_cards.sh" "$BOARD_DIR")"
+printf '%s\n' "$review_cards"
+assert_contains "$review_cards" "1|review||Quick Smoke Card" "submitted card should move to review"
+
+run bash "$SCRIPTS_DIR/review_card.sh" "$BOARD_DIR" 1 approve claude
 
 step "Board Validation"
 board_output="$(bash "$SCRIPTS_DIR/view_board.sh" "$BOARD_DIR")"

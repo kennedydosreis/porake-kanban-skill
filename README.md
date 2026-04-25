@@ -73,10 +73,10 @@ The plugin stores cards in a `kanban/` directory in your project root. Create it
 | Field        | Required | Description                                                                 |
 |--------------|----------|-----------------------------------------------------------------------------|
 | `id`         | Yes      | Auto-increment integer. Max existing + 1, start at 1.                       |
-| `status`     | Yes      | `backlog` · `todo` · `doing` · `done` · `archive`                           |
+| `status`     | Yes      | `backlog` · `todo` · `doing` · `review` · `done` · `archive`                |
 | `priority`   | No       | `High` or `Normal` (default)                                                |
 | `blocked_by` | No       | List of card IDs that must be `done` first. e.g. `[2, 5]`                   |
-| `assignee`   | No       | Who owns the card                                                           |
+| `assignee`   | No       | Empty means available; `codex` or `claude` reserves/owns it                 |
 | `due_date`   | No       | Target date (YYYY-MM-DD)                                                    |
 | `tags`       | No       | List of labels                                                              |
 
@@ -103,6 +103,47 @@ Configure GitHub Actions for automated testing.
 - A card cannot move to `doing` until all cards in its `blocked_by` list are `done`.
 - IDs are assigned by scanning existing cards and incrementing the highest.
 - Cards maintain a `## Narrative` section — a durable log of decisions, discoveries, and outcomes.
+
+## Parallel Agent Workflow
+
+Codex and Claude can share the same board because the board is just `kanban/*.md` files in the target repository. The plugin uses `assignee` as a lightweight ownership marker.
+
+Assignee convention:
+
+- Empty `assignee` means the card is available for any provider to claim.
+- `assignee: "codex"` means Codex owns or is responsible for the card.
+- `assignee: "claude"` means Claude owns or is responsible for the card.
+- Pre-filled assignees reserve work; `claim_next.sh` only claims unassigned cards by default.
+
+Typical parallel flow:
+
+```bash
+# Provider claims the next unassigned, unblocked card.
+bash <SCRIPTS_DIR>/claim_next.sh kanban/ codex
+
+# Implementation is complete; send it to the other provider.
+bash <SCRIPTS_DIR>/submit_for_review.sh kanban/ 3 claude
+
+# Reviewer approves and finalizes.
+bash <SCRIPTS_DIR>/review_card.sh kanban/ 3 approve claude
+
+# Or reviewer requests changes and pulls it back as high priority.
+bash <SCRIPTS_DIR>/review_card.sh kanban/ 3 changes claude
+```
+
+Status flow:
+
+```text
+backlog -> todo -> doing -> review -> done -> archive
+```
+
+If review requests changes, the card returns to `doing`, gets `priority: High`, and is assigned to the reviewer by default. Pass a fifth argument to assign the fix to another provider:
+
+```bash
+bash <SCRIPTS_DIR>/review_card.sh kanban/ 3 changes claude codex
+```
+
+When Codex and Claude run in separate clones, use Git as the cross-clone lock: pull before claiming, commit and push the claim/review result before starting implementation, and if push fails, pull again and choose another card.
 
 ## Plugin Structure
 

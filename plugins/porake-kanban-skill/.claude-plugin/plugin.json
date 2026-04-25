@@ -1,7 +1,7 @@
 {
   "name": "porake-kanban-skill",
   "description": "Markdown-based Kanban board managed by Claude Code. Cards live as .md files — no database, no server.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Kennedy Reis"
   },
