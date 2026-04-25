@@ -13,7 +13,7 @@ Requires Claude Code **v1.0.33+** (`claude --version` to check).
 If this plugin is available in a marketplace you've added:
 
 ```
-/plugin install kanban@marketplace-name
+/plugin install porake-kanban-skill@marketplace-name
 ```
 
 ### From a local clone
