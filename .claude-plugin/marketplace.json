@@ -1,5 +1,8 @@
 {
   "name": "porake-kanban",
+  "metadata": {
+    "description": "Marketplace for porake-kanban-skill — a Markdown-based Kanban board plugin for Claude Code."
+  },
   "owner": {
     "name": "Kennedy Reis",
     "url": "https://github.com/kennedydosreis"
