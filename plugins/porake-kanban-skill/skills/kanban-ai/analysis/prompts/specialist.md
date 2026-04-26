@@ -40,11 +40,15 @@ Append findings to the `## Narrative` section of your card, using this format:
 ## When you finish
 
 1. Count your findings. If fewer than 3, consider whether you've explored the scope adequately — many scopes have more to say than that.
-2. Use the `transition.sh` script to move the card to `done`. This appends a transition note automatically.
+2. Use the transition script that matches the current shell to move the card to `done`. This appends a transition note automatically.
 3. Do NOT modify other cards. Each specialist owns only their card.
 
 ```bash
 bash {{SCRIPTS_DIR}}/transition.sh {{KANBAN_DIR}} {{CARD_ID}} done
+```
+
+```powershell
+& {{SCRIPTS_DIR}}/transition.ps1 {{KANBAN_DIR}} {{CARD_ID}} done
 ```
 
 ## Hard constraints

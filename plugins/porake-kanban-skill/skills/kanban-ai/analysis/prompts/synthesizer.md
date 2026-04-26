@@ -8,6 +8,8 @@ You are the **Lead Architect**. Your job is to read every specialist's findings 
 2. The project profile at `{{PROFILE_PATH}}` for context.
 3. The output destination `{{ACTION_DIR}}` where you will create the action board.
 
+The orchestrator has already granted tool access to `{{ACTION_DIR}}` and the related kanban directories. Write the output files there directly; do not stop merely to ask for permission to create them.
+
 ## Your task
 
 Produce two artifacts:
@@ -39,10 +41,14 @@ Keep this file under 400 lines. This is the document a decision-maker reads.
 
 ### 2. Action board
 
-In `{{ACTION_DIR}}/`, create one card per recommendation that deserves implementation work. Use the existing `create_from_template.sh` with the appropriate template (feature, bug, chore, or spike):
+In `{{ACTION_DIR}}/`, create one card per recommendation that deserves implementation work. Use the existing create-from-template script matching the current shell with the appropriate template (feature, bug, chore, or spike):
 
 ```bash
 bash {{SCRIPTS_DIR}}/create_from_template.sh {{ACTION_DIR}} <template> "<title>" "" ""
+```
+
+```powershell
+& {{SCRIPTS_DIR}}/create_from_template.ps1 {{ACTION_DIR}} <template> "<title>" "" ""
 ```
 
 Each action card must:
@@ -68,3 +74,5 @@ Print to stdout:
 - Path to the executive summary file.
 - Count of action cards created, broken down by priority.
 - Any unresolved disagreements between specialists you identified.
+
+Do not finish with a prose description of files you planned to create. The task is only complete after `ARCHITECTURE-REVIEW.md` and the action-card files exist on disk.

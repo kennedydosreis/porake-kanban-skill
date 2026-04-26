@@ -1,12 +1,30 @@
 # porake-kanban-skill
 
-A Markdown-based Kanban board plugin for [Claude Code](https://claude.com/claude-code).
+A Markdown-based Kanban board plugin for Claude Code and Codex.
 
 Cards live as `.md` files in a `kanban/` directory in your project. The board is derived at read-time — no database, no server. Status is tracked in YAML frontmatter.
 
 ## Install
 
 Requires Claude Code **v1.0.33+** (`claude --version` to check).
+
+## Shell Compatibility
+
+The board utilities are available in both Bash and PowerShell:
+
+- In Bash, run the `.sh` scripts with `bash`.
+- In PowerShell, run the matching `.ps1` scripts directly with `&`.
+- Prefer the native script for the current shell. Do not route PowerShell through Git Bash just to reach the Kanban scripts.
+
+Examples:
+
+```bash
+bash plugins/porake-kanban-skill/skills/kanban-ai/scripts/view_board.sh kanban/
+```
+
+```powershell
+& .\plugins\porake-kanban-skill\skills\kanban-ai\scripts\view_board.ps1 kanban\
+```
 
 ### From a marketplace
 
@@ -57,7 +75,7 @@ If those prompts cause Claude Code to load the `porake-kanban-skill:kanban-ai` s
 
 ## Usage
 
-The skill is model-invoked — Claude will use it automatically when you ask about tasks, cards, or your kanban board. You can also trigger it explicitly:
+The skill is model-invoked. Claude Code and Codex can use it automatically when you ask about tasks, cards, or your kanban board. You can also trigger it explicitly:
 
 ```
 > create a new kanban card for implementing user auth
@@ -66,7 +84,7 @@ The skill is model-invoked — Claude will use it automatically when you ask abo
 > what cards are blocked?
 ```
 
-The plugin stores cards in a `kanban/` directory in your project root. Create it if it doesn't exist — or Claude will create it for you.
+The plugin stores cards in a `kanban/` directory in your project root. Create it if it doesn't exist, or the agent can create it for you.
 
 ## Card Fields
 
@@ -131,6 +149,20 @@ bash <SCRIPTS_DIR>/review_card.sh kanban/ 3 approve claude
 bash <SCRIPTS_DIR>/review_card.sh kanban/ 3 changes claude
 ```
 
+```powershell
+# Provider claims the next unassigned, unblocked card.
+& <SCRIPTS_DIR>/claim_next.ps1 kanban/ codex
+
+# Implementation is complete; send it to the other provider.
+& <SCRIPTS_DIR>/submit_for_review.ps1 kanban/ 3 claude
+
+# Reviewer approves and finalizes.
+& <SCRIPTS_DIR>/review_card.ps1 kanban/ 3 approve claude
+
+# Or reviewer requests changes and pulls it back as high priority.
+& <SCRIPTS_DIR>/review_card.ps1 kanban/ 3 changes claude
+```
+
 Status flow:
 
 ```text
@@ -166,15 +198,15 @@ porake-kanban-skill/                 # Marketplace repo
 
 ## Bundled Scripts
 
-The plugin includes helper scripts for board operations. Claude uses these automatically, but you can also run them directly:
+The plugin includes helper scripts for board operations. Claude Code and Codex use these automatically, but you can also run them directly:
 
 | Script              | Purpose                               |
 |---------------------|---------------------------------------|
-| `view_board.sh`     | Display board grouped by status       |
-| `search_by_tag.sh`  | Find cards by tag                     |
-| `search_content.sh` | Full-text search across cards         |
-| `show_blocked.sh`   | List blocked cards and their blockers |
-| `list_tags.sh`      | Show tag usage with counts            |
+| `view_board.(sh|ps1)`     | Display board grouped by status       |
+| `search_by_tag.(sh|ps1)`  | Find cards by tag                     |
+| `search_content.(sh|ps1)` | Full-text search across cards         |
+| `show_blocked.(sh|ps1)`   | List blocked cards and their blockers |
+| `list_tags.(sh|ps1)`      | Show tag usage with counts            |
 
 Scripts are located at `plugins/porake-kanban-skill/skills/kanban-ai/scripts/` within the plugin directory.
 
@@ -186,10 +218,18 @@ Quick smoke test:
 bash ./smoke_test_quick.sh
 ```
 
+```powershell
+& .\smoke_test_quick.ps1
+```
+
 Full local smoke test:
 
 ```bash
 bash ./smoke_test.sh
+```
+
+```powershell
+& .\smoke_test.ps1
 ```
 
 ## License

@@ -7,6 +7,14 @@ description: Manage a Markdown-based Kanban board using card files in a kanban/ 
 
 Manage a Kanban board as Markdown files in the `kanban/` directory. Each file is a card. The board state is derived by reading all card files and grouping by `status`.
 
+## Shell Selection
+
+Use the script extension that matches the current shell:
+
+- In Bash, run `bash <SCRIPTS_DIR>/name.sh ...`
+- In PowerShell, run `& <SCRIPTS_DIR>/name.ps1 ...`
+- Do not invoke the Bash scripts from PowerShell just to reach the board utilities. Prefer the native `.ps1` scripts when the agent shell is PowerShell.
+
 ## Narrative Record (Required)
 
 Treat cards as durable source material for future review. Do not rewrite or delete prior narrative content unless explicitly asked. When updating a card, append a brief narrative note to a `## Narrative` section at the end of the file. Focus on reasons, discoveries, insights, and decisions. Avoid transactional status-change logs unless they matter to the story. Use ISO dates.
@@ -130,6 +138,8 @@ Review rules:
 ## Viewing the Board
 
 Helper scripts are bundled in the `scripts/` directory alongside this skill file. To locate them, find this skill's directory within the installed plugin (e.g., using `glob` for `**/kanban-ai/scripts/view_board.sh`).
+
+When the current shell is PowerShell, use the matching `.ps1` script in the same directory instead of the `.sh` variant.
 
 Run the board view script:
 
@@ -264,6 +274,12 @@ The `analysis/analyze.sh` orchestrator runs four phases: profile the repo, decom
 ```bash
 bash <SCRIPTS_DIR>/../analysis/analyze.sh /path/to/target/repo
 ```
+
+```powershell
+& <SCRIPTS_DIR>/../analysis/analyze.ps1 /path/to/target/repo
+```
+
+Use the `.sh` or `.ps1` analysis entrypoint that matches the current shell.
 
 For full usage, customization (adding specialists, changing decomposition rules), and the design rationale, read `analysis/ANALYSIS.md` — it is the authoritative reference for this workflow.
 

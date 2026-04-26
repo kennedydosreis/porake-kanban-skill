@@ -1,6 +1,6 @@
 # Multi-Agent Architectural Analysis
 
-A Claude Code workflow for analyzing large repositories without burning through a single context window. Built on top of the `kanban-ai` skill.
+A Claude Code workflow for analyzing large repositories without burning through a single context window. Built on top of the `kanban-ai` skill, with Bash and PowerShell entrypoints.
 
 ## The problem
 
@@ -39,6 +39,10 @@ From your working directory (not the target repo — the analysis lives outside)
 bash analyze.sh /path/to/target/repo
 ```
 
+```powershell
+& .\analyze.ps1 /path/to/target/repo
+```
+
 This creates:
 - `kanban/analysis/.project-profile.md` — repository inventory
 - `kanban/analysis/*.md` — one card per analysis task
@@ -57,10 +61,18 @@ Create `specialists/<name>.md` with these sections: Role, Focus areas, What you 
 bash analyze.sh /path/to/repo --kanban-dir my-boards/analysis --action-dir my-boards/actions
 ```
 
+```powershell
+& .\analyze.ps1 /path/to/repo -KanbanDir my-boards/analysis -ActionDir my-boards/actions
+```
+
 ### Skipping the profiler (if you've already run it)
 
 ```bash
 bash analyze.sh /path/to/repo --skip-profile
+```
+
+```powershell
+& .\analyze.ps1 /path/to/repo -SkipProfile
 ```
 
 ### Adjusting decomposition behavior
@@ -136,8 +148,10 @@ skills/kanban-ai/
 │       ├── bug.md
 │       └── ...
 └── analysis/                # NEW — multi-agent analysis workflow
-    ├── analyze.sh           # Orchestrator
-    ├── profiler.sh          # Repo inventory
+    ├── analyze.sh           # Bash orchestrator
+    ├── analyze.ps1          # PowerShell orchestrator
+    ├── profiler.sh          # Bash repo inventory
+    ├── profiler.ps1         # PowerShell repo inventory
     ├── ANALYSIS.md          # This file
     ├── prompts/
     │   ├── decomposer.md
